@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Barcode Generator</title>
+    <!-- Include JsBarcode and JSZip -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --primary-ring: rgba(16, 185, 129, 0.4);
+            --secondary: #3b82f6;
+            --secondary-hover: #2563eb;
+            --error: #ef4444;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 640px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title span {
+            background-color: var(--border-color);
+            color: var(--text-main);
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.85rem;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input[type="text"], 
+        input[type="number"], 
+        select, 
+        textarea {
+            width: 100%;
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-ring);
+        }
+
+        textarea {
+            resize: vertical;
+            height: 120px;
+            font-family: monospace;
+            line-height: 1.4;
+        }
+
+        /* Grid for properties */
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 100%;
+            padding-top: 26px; /* Align with inputs that have labels */
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .btn-generate {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-generate:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-export {
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            flex: 1;
+            min-width: 130px;
+            transition: var(--transition);
+        }
+        
+        .btn-export:hover {
+            background-color: var(--border-color);
+            border-color: #475569;
+        }
+
+        #preview-container {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: var(--radius-md);
+            margin-top: 24px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px dashed var(--border-color);
+        }
+
+        /* Custom Scrollbar for Preview */
+        #preview-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        #preview-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        #preview-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .error-msg {
+            color: var(--error);
+            font-size: 0.875rem;
+            margin-top: 8px;
+            display: none;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .properties-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .export-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="header">
+            <h1>Barcode Generator</h1>
+        </div>
+
+        <!-- SECTION 1 -->
+        <div class="section">
+            <h2 class="section-title"><span>1</span> Choose Data & Format</h2>
+            
+            <div class="form-group">
+                <label for="barcode-format">Barcode Symbology</label>
+                <select id="barcode-format">
+                    <option value="CODE128">Code 128</option>
+                    <option value="CODE39">Code 39</option>
+                    <option value="EAN13">EAN 13</option>
+                    <option value="EAN8">EAN 8</option>
+                    <option value="UPC">UPC</option>
+                    <option value="ITF14">ITF 14</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="barcode-data">Enter barcodes (one per line)</label>
+                <textarea id="barcode-data" placeholder="8949461894984&#10;6515648916&#10;6548964631668">8949461894984&#10;6515648916&#10;6548964631668</textarea>
+                <div id="error-msg" class="error-msg">Invalid format for some entries. Please check your data.</div>
+            </div>
+        </div>
+
+        <!-- SECTION 2 -->
+        <div class="section">
+            <h2 class="section-title"><span>2</span> Properties & Styling</h2>
+            
+            <div class="properties-grid">
+                <div class="form-group">
+                    <label for="prop-width">Bar Width (px)</label>
+                    <input type="number" id="prop-width" value="2" step="1" min="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="prop-height">Height (px)</label>
+                    <input type="number" id="prop-height" value="100" step="5" min="10">
+                </div>
+                
+                <div class="form-group">
+                    <label for="prop-margin">Margin (px)</label>
+                    <input type="number" id="prop-margin" value="10" step="1" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="prop-fontsize">Font Size (px)</label>
+                    <input type="number" id="prop-fontsize" value="20" step="1" min="8">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="prop-text" checked>
+                    <label for="prop-text">Show Text</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3 -->
+        <div class="section">
+            <h2 class="section-title"><span>3</span> Generate & Export</h2>
+            
+            <button class="btn-generate" onclick="generateBarcodes()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                Generate Barcodes
+            </button>
+            
+            <div class="export-actions" id="export-actions" style="display: none;">
+                <button class="btn-export" onclick="downloadAll('svg')">ZIP (.svg)</button>
+                <button class="btn-export" onclick="downloadAll('png')">ZIP (.png)</button>
+                <button class="btn-export" onclick="downloadAll('jpeg')">ZIP (.jpg)</button>
+            </div>
+
+            <div id="preview-container"></div>
+        </div>
+    </div>
+
+    <script>
+        let generatedBarcodes = [];
+
+        function generateBarcodes() {
+            const dataInput = document.getElementById('barcode-data').value;
+            const format = document.getElementById('barcode-format').value;
+            const width = parseInt(document.getElementById('prop-width').value) || 2;
+            const height = parseInt(document.getElementById('prop-height').value) || 100;
+            const displayValue = document.getElementById('prop-text').checked;
+            const fontSize = parseInt(document.getElementById('prop-fontsize').value) || 20;
+            const margin = parseInt(document.getElementById('prop-margin').value) || 10;
+
+            const previewContainer = document.getElementById('preview-container');
+            const errorMsg = document.getElementById('error-msg');
+            const exportActions = document.getElementById('export-actions');
+            
+            previewContainer.innerHTML = '';
+            generatedBarcodes = [];
+            errorMsg.style.display = 'none';
+
+            const lines = dataInput.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+            if (lines.length === 0) return;
+
+            let hasError = false;
+
+            lines.forEach((text, index) => {
+                const svgWrapper = document.createElement('div');
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                const canvas = document.createElement("canvas");
+
+                svgWrapper.appendChild(svg);
+                
+                try {
+                    const options = {
+                        format: format,
+                        width: width,
+                        height: height,
+                        displayValue: displayValue,
+                        fontSize: fontSize,
+                        margin: margin,
+                        background: "#ffffff",
+                        lineColor: "#000000"
+                    };
+
+                    JsBarcode(svg, text, options);
+                    JsBarcode(canvas, text, options);
+                    
+                    previewContainer.appendChild(svgWrapper);
+
+                    generatedBarcodes.push({
+                        text: text,
+                        svg: svg,
+                        canvas: canvas
+                    });
+
+                } catch (e) {
+                    console.error("Barcode generation error:", e);
+                    hasError = true;
+                }
+            });
+
+            if (hasError) {
+                errorMsg.style.display = 'block';
+            }
+
+            if (generatedBarcodes.length > 0) {
+                previewContainer.style.display = 'flex';
+                exportActions.style.display = 'flex';
+            } else {
+                previewContainer.style.display = 'none';
+                exportActions.style.display = 'none';
+            }
+        }
+
+        async function downloadAll(format) {
+            if (generatedBarcodes.length === 0) return;
+
+            const zip = new JSZip();
+
+            generatedBarcodes.forEach((barcode, index) => {
+                const safeName = barcode.text.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const filename = `barcode_${safeName}_${index + 1}.${format}`;
+
+                if (format === 'svg') {
+                    const svgData = new XMLSerializer().serializeToString(barcode.svg);
+                    const svgBlob = '<?xml version="1.0" standalone="no"?>\r\n' + svgData;
+                    zip.file(filename, svgBlob);
+                } else if (format === 'png' || format === 'jpeg') {
+                    const dataUrl = barcode.canvas.toDataURL(`image/${format}`);
+                    const base64Data = dataUrl.split(',')[1];
+                    zip.file(filename, base64Data, {base64: true});
+                }
+            });
+
+            zip.generateAsync({type:"blob"}).then(function(content) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = `barcodes_${new Date().getTime()}.zip`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+            });
+        }
+    </script>
+</body>
+</html>
